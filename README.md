@@ -1,4 +1,4 @@
-# Machine Learning and Deep Learning for-Car-Following
+# Machine Learning and Deep Learning for Car-Following
  
 ## Background
 The Federal Highway Administration (FHWA) gathered the Next Generation Simulation dataset (NGSIM) for Interstate 80 freeway (I-80) in Emeryville, California. NGSIM trajectory data has been collected by FHWA in 2005 by a set of synchronized cameras on the freeway. The original dataset is available from [here](https://ops.fhwa.dot.gov/trafficanalysistools/ngsim.htm).
