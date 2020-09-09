@@ -1,10 +1,4 @@
 # -*- coding: utf-8 -*-
-"""
-
-https://pythonprogramming.net/tensorflow-neural-network-session-machine-learning-tutorial/
-https://www.youtube.com/watch?v=PwAGxqrXSCs&index=47&list=PLQVvvaa0QuDfKTOs3Keq_kaG2P55YRn5v
-ANN with  3 layers 
-"""
 
 import tensorflow as tf
 from tensorflow.contrib import rnn 
@@ -215,9 +209,6 @@ for item in range(num_run):
 
     outputAN = tf.matmul(l5,output_layer['weights']) + output_layer['biases']
     outputANN = tf.reshape(outputAN, [-1, batch_size, outputs])
-    
-    
-    
     
     acel = tf.transpose(tf.nn.embedding_lookup(tf.transpose(batchX_placeholder),[2])) # extract accleration rate
     acel_min = tf.nn.embedding_lookup(tf.transpose(col_min_holder),[2])

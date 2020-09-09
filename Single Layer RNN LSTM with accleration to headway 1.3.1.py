@@ -1,7 +1,5 @@
 """
 Created on Thu Mar  8 02:56:46 2018
-
-@author: Sertab Beta
 this file is a single layer RNN for Car following, could be used for leading vehicle or all surrounding vehicles.
 This code runs the RNN several times and print MSE for each run. 
 This code attempts to minimize % headway error
@@ -159,8 +157,6 @@ def plottest(_predictions_series, batchYT):
     plt.draw()
     plt.pause(0.0001)
 
-
-
 lost_train = []
 lost_test = []
 lost_validate = []
@@ -187,7 +183,6 @@ for item in range(num_run):
     
     #init_state = (tf.zeros([2, 1,state_size]),)
     lstm_cell = tf.contrib.rnn.BasicLSTMCell(state_size, state_is_tuple=True)
-    #lstm_cell = tf.nn.rnn_cell.DropoutWrapper(lstm_cell, output_keep_prob=0.9)
     # Initial state of the LSTM memory.
     W2 = tf.Variable(np.zeros((state_size, num_classes)),dtype=tf.float32)
     b2 = tf.Variable(np.zeros((1,num_classes)), dtype=tf.float32)
@@ -394,6 +389,5 @@ print("All runs testing average %headway error", "%.7f" % (np.mean(lost_test)*10
 print("run time", "%.0f" %  (time.clock() - tic)) 
 print ('********************************')
 
-    
 plot_prediction = _predictions_series*(col_max[:,:,input_size]-col_min[:,:,input_size])+ col_min[:,:,input_size]
 plot_actual = batchYT1*(col_max[:,:,input_size]-col_min[:,:,input_size])+ col_min[:,:,input_size]
