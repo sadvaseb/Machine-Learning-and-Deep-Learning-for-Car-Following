@@ -23,9 +23,6 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_squared_error
 import time
 
-
-#generate seed for training, testing, and validation selection
-
 #seeds for test data selection
 seed1 = [2861, 2723, 4436, 9064, 2428, 4748, 5665, 8987, 8088, 3465, 5998,
        4636, 7457, 5431, 5494, 9009,   34, 5037, 7155, 1323, 2156, 6835,
@@ -45,17 +42,17 @@ input_size = 6
 test_sample_size = .2 # percenetage testing data
 validation_sample_size = 0.1 #percentage validation data
 sample__stop_training = .1 # percentage of whole data which is selected from training dataset to compare with validation perfromance
-num_batches = int((1-test_sample_size-validation_sample_size)*231752/(batch_size))-1 ###############238360
+num_batches = int((1-test_sample_size-validation_sample_size)*231752/(batch_size))-1
 keep_rate = 0.8 #keeping rate in drop-out algorithm
 
-inputs = input_size          #number of inputs
-learning_rate = 0.0001 #Optimizer's learning rate
-stop_training_error_time = 1 #this parameter shows after how many not improving trainings the training will stop 
+inputs = input_size          # number of inputs
+learning_rate = 0.0001       # Optimizer's learning rate
+stop_training_error_time = 1 # this parameter shows after how many not improving trainings the training will stop 
 
 def generateData():
     """ Generate Training, testing, and validation data """
     input1 = []
-    with open('C:/Users/Sertab Gamma/Dropbox/Saeed Vasebi/2019/2019.04.30- IDM calibration/IDM_calibration_all_lane_data1.csv', 'r') as csv_f:        
+    with open('IDM_calibration_all_lane_data1.csv', 'r') as csv_f:        
         data = csv.reader (csv_f) 
         for row in data:
             input1.append (row [0:6+num_classes])
