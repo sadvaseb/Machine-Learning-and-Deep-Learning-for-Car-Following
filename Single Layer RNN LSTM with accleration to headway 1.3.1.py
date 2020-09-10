@@ -159,13 +159,13 @@ lost_test = []
 lost_validate = []
 lost_test_line = []    
 
-# Run the RNN 6 times and create 6 models
+# Run the RNN n times and create n models
 for item in range(num_run):
     # Configure RNN network
-    tf.reset_default_graph()   # Reset all previous graphs
+    tf.reset_default_graph()   # Reset previous graphs
     
     #create variables' place holder
-    batchX_placeholder = tf.placeholder(tf.float32, [None, batch_size, inputs])   #create RNN cells with softsign activation function
+    batchX_placeholder = tf.placeholder(tf.float32, [None, batch_size, inputs])    #create RNN cells with softsign activation function
     batchY_placeholder = tf.placeholder(tf.float32, [None, batch_size, outputs])   #Create the graph with RNN cells
     keep_prob = tf.placeholder(tf.float32)
     time_step = tf.placeholder(tf.float32)
@@ -194,7 +194,7 @@ for item in range(num_run):
     logits = tf.matmul(output1, W2) + b2
     predictions_series = tf.sigmoid(logits)  
         
-    outputRNN = tf.reshape(predictions_series, [-1, batch_size, outputs])         #change shape of stacked_outputs
+    outputRNN = tf.reshape(predictions_series, [-1, batch_size, outputs])    # change shape of stacked_outputs
 
     acel = tf.transpose(tf.nn.embedding_lookup(tf.transpose(batchX_placeholder),[2])) # extract accleration rate
     acel_min = tf.nn.embedding_lookup(tf.transpose(col_min_holder),[2])
@@ -308,8 +308,7 @@ for item in range(num_run):
                     ttt.extend(single_output_series)
                 ttt = np.array(ttt)
                 batchYV = batchYV.reshape((batch_size))
-                
-                #validation_loss = mean_squared_error(batchYV,ttt)   
+                   
                 validation_loss = np.mean(np.abs((batchYV - ttt) / batchYV))
                 loss_listV.append(validation_loss)
                 Ave_loss_validation = Ave_loss_validation + validation_loss
