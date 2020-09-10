@@ -316,7 +316,7 @@ for item in range(num_run):
             
             print('Validation average %headway error is', "%.7f" % (validation_loss*100))
                         
-            """Is the model overfitted?"""
+            """check if the model overfitted"""
             # Check if the model trained well enough
             if (validation_loss < 0.001):
                 # First stop condition
@@ -327,7 +327,8 @@ for item in range(num_run):
     
             lost_train.append(loss_list)
             lost_validate.append(loss_listV)
-        """Start test the model"""
+        
+	"""Start test the model"""
         Ave_loss_test= 0
         loss_listT = []
         test_acceleration = []
@@ -365,7 +366,6 @@ for item in range(num_run):
                 plottest(_predictions_series,batchYT1)
                 print('This batch s %headway error = ', "%.7f" % (test_loss*100))
         test_loss = Ave_loss_test/(int(len(xt[0])/batch_size))
-        print ('********************************')
         print('Test average %headway error = ', "%.7f" % (test_loss*100))
         print ('')
         lost_test.append(loss_listT)
@@ -379,11 +379,8 @@ lost_test_line = lost_test.reshape((1,-1))
 test_acceleration = np.array(test_acceleration)
 test_acceleration = test_acceleration.reshape((1,-1))
 test_acceleration = test_acceleration * (col_max[0,0,2]-col_max[0,0,2]) + col_max[0,0,2]
-print('=================================')
-print('=================================')
 print("All runs testing average %headway error", "%.7f" % (np.mean(lost_test)*100))
 print("run time", "%.0f" %  (time.clock() - tic)) 
-print ('********************************')
 
 plot_prediction = _predictions_series*(col_max[:,:,input_size]-col_min[:,:,input_size])+ col_min[:,:,input_size]
 plot_actual = batchYT1*(col_max[:,:,input_size]-col_min[:,:,input_size])+ col_min[:,:,input_size]
