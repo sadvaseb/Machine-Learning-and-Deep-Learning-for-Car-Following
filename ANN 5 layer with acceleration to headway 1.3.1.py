@@ -10,7 +10,6 @@ import time
 from sklearn.model_selection import train_test_split
 
 #generate seed for training, testing, and validation selection
-
 #seeds for test data selection
 seed1 = [2861, 2723, 4436, 9064, 2428, 4748, 5665, 8987, 8088, 3465, 5998,
        4636, 7457, 5431, 5494, 9009,   34, 5037, 7155, 1323, 2156, 6835,
@@ -30,33 +29,31 @@ n_nodes_hl4 = 80
 n_nodes_hl5 = 40
 
 
-num_run = 5    # number of run   
-state_size = n_nodes_hl1 # number of cells in the hidden layer 
-outputs = 1            #number of outputs
-num_classes = outputs   # number of outputs
-batch_size = 118  #In this code refers to length of back propagation
+num_run = 5                # number of run   
+state_size = n_nodes_hl1   # number of cells in the hidden layer 
+outputs = 1                # number of outputs
+num_classes = outputs      # number of outputs
+batch_size = 118           # In this code refers to length of back propagation
 input_size = 6 
-test_sample_size = .2 # percenetage testing data
-validation_sample_size = 0.1 #percentage validation data
-sample__stop_training = .1 # percentage of whole data which is selected from training dataset to compare with validation perfromance
-num_batches = int((1-test_sample_size-validation_sample_size)*231752/(batch_size))-1 ###############238360
-keep_rate = 0.9 #keeping rate in drop-out algorithm
+test_sample_size = .2        # percenetage testing data
+validation_sample_size = 0.1 # percentage validation data
+sample__stop_training = .1   # percentage of whole data which is selected from training dataset to compare with validation perfromance
+num_batches = int((1-test_sample_size-validation_sample_size)*231752/(batch_size))-1 
+keep_rate = 0.9    #   keeping rate in drop-out algorithm
 
-inputs = input_size          #number of inputs
-learning_rate = 0.0001 #Optimizer's learning rate
-stop_training_error_time = 1 #this parameter shows after how many not improving trainings the training will stop 
+inputs = input_size          # number of inputs
+learning_rate = 0.0001       # Optimizer's learning rate
+stop_training_error_time = 1 # this parameter shows after how many not improving trainings the training will stop 
 
 def generateData():
     """ Generate Training, testing, and validation data """
     input1 = []
-    with open('C:/Users/Saeed/Dropbox/Saeed Vasebi/2019/2019.04.30- IDM calibration/IDM_calibration_all_lane_data1.csv', 'r') as csv_f:        
+    with open('IDM_calibration_all_lane_data1.csv', 'r') as csv_f:        
         data = csv.reader (csv_f) 
         for row in data:
             input1.append (row [0:6+num_classes])
     csv_f.close()
     input1 = np.array(input1)
-    """Select which parameters should be considered"""
-    """Number of inputs in line 26 should be checked"""
     extractedData = input1[:,[0, 1, 2, 3, 4, 6, 5]]
     # String to float all data and remove columns' titles from the data
     input11 = []
@@ -69,7 +66,6 @@ def generateData():
     # Create Batches
     x_data = input2[:(len(input2)-(len(input2) % (batch_size)))]
     x1 = x_data.reshape((-1, batch_size, inputs+num_classes))    
-    #TrainData = TrainData.transpose(1,0,2) 
     
     TrainData, TestData =train_test_split(x1, test_size=test_sample_size, random_state = seed1[item])
     TrainData, ValidationData =train_test_split(TrainData, test_size=validation_sample_size/(1-test_sample_size), random_state = seed2[item])
@@ -161,12 +157,10 @@ lost_test_line = []
 # Run the ANN n times and create n models
 for item in range(num_run):
 
-
     # Configure ANN network
-    tf.reset_default_graph()   #this would reset the graphs
+    tf.reset_default_graph()   #this resets the graphs
 
-
-    batchX_placeholder = tf.placeholder(tf.float32, [None, batch_size, inputs])   #create RNN cells with softsign activation function
+    batchX_placeholder = tf.placeholder(tf.float32, [None, batch_size, inputs])    #create ANN cells with softsign activation function
     batchY_placeholder = tf.placeholder(tf.float32, [None, batch_size, outputs])   #Create the graph with RNN cells
     keep_prob = tf.placeholder(tf.float32)
     time_step = tf.placeholder(tf.float32)
@@ -210,7 +204,7 @@ for item in range(num_run):
     outputAN = tf.matmul(l5,output_layer['weights']) + output_layer['biases']
     outputANN = tf.reshape(outputAN, [-1, batch_size, outputs])
     
-    acel = tf.transpose(tf.nn.embedding_lookup(tf.transpose(batchX_placeholder),[2])) # extract accleration rate
+    acel = tf.transpose(tf.nn.embedding_lookup(tf.transpose(batchX_placeholder),[2]))  # extract accleration rate
     acel_min = tf.nn.embedding_lookup(tf.transpose(col_min_holder),[2])
     acel_max = tf.nn.embedding_lookup(tf.transpose(col_max_holder),[2])
     #acel1 = tf.reshape(tf.add(tf.multiply(acel, tf.subtract(acel_max,acel_min)), acel_min), [-1, batch_size, outputs]) # denormalize accleration
@@ -259,8 +253,7 @@ for item in range(num_run):
         x,y, xv, yv, xt, yt, col_min, col_max = generateData()
     
         while stop_training < stop_training_error_time:
-        #for  tz in range(200):
-            """Start training RNN"""
+
             loss_list = []
             sum_loss= 0
             for batch_idx in range(num_batches):
@@ -327,7 +320,7 @@ for item in range(num_run):
             
             print('Validation average %headway is', "%.5f" % (validation_loss1*100))
                         
-            """Is the model overfitted?"""
+            """check if the model overfitted"""
             # Check if the model trained well enough
             if (validation_loss1 < 0.001):
                 # First stop condition
@@ -395,11 +388,8 @@ test_Location = (xt[0,:,5]* (col_max[0,0,5]-col_min[0,0,5]) + col_min[0,0,5]) - 
 test_velocity = (test_Location - (xt[0,:,0]* (col_max[0,0,0]-col_min[0,0,0]) + col_min[0,0,0]))/.1
 test_acceleration = (test_velocity - (xt[0,:,1]* (col_max[0,0,1]-col_min[0,0,1]) + col_min[0,0,1]))/.1
 
-print('=================================')
-print('=================================')
 print("All runs testing average %headway error", "%.7f" % (np.mean(lost_test)*100))
 print("run time", "%.0f" %  (time.clock() - tic)) 
-print ('********************************')
     
 """Denormalize final test results"""
 plot_prediction = _predictions_series*(col_max[:,:,input_size]-col_min[:,:,input_size])+ col_min[:,:,input_size]
