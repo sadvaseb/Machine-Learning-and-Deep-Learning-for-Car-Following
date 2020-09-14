@@ -10,8 +10,7 @@ import csv
 from sklearn.model_selection import train_test_split 
 import time
 
-#generate seed for training, testing, and validation selection
-#np.random.randint(10000, size=30)
+#Generate seed for training, testing, and validation selection
 #seeds for test data selection
 seed1 = [2861, 2723, 4436, 9064, 2428, 4748, 5665, 8987, 8088, 3465, 5998,
        4636, 7457, 5431, 5494, 9009,   34, 5037, 7155, 1323, 2156, 6835,
@@ -32,10 +31,10 @@ num_layers = 4  #number of hidden layers
 test_sample_size = .2 # percenetage testing data
 validation_sample_size = 0.1 #percentage validation data
 sample__stop_training = .1 # percentage of whole data which is selected from training dataset to compare with validation perfromance
-num_batches = int((1-test_sample_size-validation_sample_size)*231752/(truncated_backprop_length*batch_size))-1 ###############
+num_batches = int((1-test_sample_size-validation_sample_size)*231752/(truncated_backprop_length*batch_size))-1
 keep_rate = 0.9 #keeping rate in drop-out algorithm
 
-inputs = input_size          #number of inputs
+inputs = input_size   #number of inputs
 learning_rate = 0.001 #Optimizer's learning rate
 stop_training_error_time = 1 #this parameter shows after how many not improving trainings the training will stop 
 
@@ -151,15 +150,11 @@ lost_test_line = []
 
 """Run the model"""
 for item in range(num_run):
-    print()
     print("Run Number", item+1)
-    print('******************')
-    """Define RNN network"""
     tf.reset_default_graph()  # rest all graphs
     
     batchX_placeholder = tf.placeholder(tf.float32, [batch_size, truncated_backprop_length, input_size])
     batchY_placeholder = tf.placeholder(tf.float32, [batch_size, truncated_backprop_length])
-    
     
     keep_prob = tf.placeholder(tf.float32)
     time_step = tf.placeholder(tf.float32)
@@ -171,9 +166,7 @@ for item in range(num_run):
     state_per_layer_list = tf.unstack(init_state, axis=0)
     rnn_tuple_state = tuple(
           [tf.nn.rnn_cell.LSTMStateTuple(state_per_layer_list[idx][0,:,:], state_per_layer_list[idx][1,:,:])
-          for idx in range(num_layers)])   #TensorFlow uses a data structure called LSTMStateTuple internally for its LSTM:s, where the first element in the tuple is the cell state, and the second is the hidden state
-    
-    
+          for idx in range(num_layers)])
     # Weights and biases  
     W2 = tf.Variable(np.zeros((state_size, num_classes)),dtype=tf.float32)
     b2 = tf.Variable(np.zeros((1,num_classes)), dtype=tf.float32)
@@ -366,9 +359,7 @@ for item in range(num_run):
                 plottest(_predictions_series, batchYT)
                 print('This batch s %headway error = ', "%.7f" % (test_loss*100)) 
         test_loss = Ave_loss_test/(int(len(xt[0])/truncated_backprop_length))
-        print ('********************************')
         print('Test average %headway error = %', "%.7f" % (test_loss*100))
-        print ('')
         lost_test.append(loss_listT)
     plt.ioff()
     plt.show()
@@ -383,11 +374,8 @@ test_headway = test_headway * (col_max[0,0,6]-col_min[0,0,6]) + col_min[0,0,6]
 test_Location = (xt[0,:,5]* (col_max[0,0,5]-col_min[0,0,5]) + col_min[0,0,5]) - test_headway
 test_velocity = (test_Location - (xt[0,:,0]* (col_max[0,0,0]-col_min[0,0,0]) + col_min[0,0,0]))/.1  # V1 = (X1 - X0)/t
 test_acceleration = (test_velocity - (xt[0,:,1]* (col_max[0,0,1]-col_min[0,0,1]) + col_min[0,0,1]))/.1  # a1 = (V1 - V0)/t
-print('=================================')
-print('=================================')
 print("All runs testing average %headway error %", "%.7f" % (np.mean(lost_test)*100))
 print("run time", "%.0f" %  (time.clock() - tic)) 
-print ('********************************')
 
 plot_prediction = _predictions_series*(col_max[:,:,input_size]-col_min[:,:,input_size])+ col_min[:,:,input_size]
 plot_actual = batchYT*(col_max[:,:,input_size]-col_min[:,:,input_size])+ col_min[:,:,input_size]
