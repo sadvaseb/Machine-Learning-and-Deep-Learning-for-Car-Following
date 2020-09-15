@@ -14,7 +14,7 @@ The models are developed in TensorFlow and compared at local (single-step) and g
 The below figure shows the performance of the CF models in multi-step predictions. The result shows that the Deep Learning model and IDM have the best performance in multi-step predictions (i.e, 100 steps predictions).
 The Deep Learning CF model shows a higher variation in performance than the IDM model, which has constant performance in predicting CF behavior.
 
-![alt text](https://github.com/sadvaseb/Machine-Learning-and-Deep-Learning-for-Car-Following/blob/master/fan%20chart%202.png "Pic 1")
+![alt text](https://github.com/sadvaseb/Machine-Learning-and-Deep-Learning-for-Car-Following/blob/master/Fig11-All-togather.jpg "Pic 1")
 
 
 
