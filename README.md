@@ -11,7 +11,11 @@ This project investigates human car-following behavior. Car-Following models exp
 This study conducts a cross-category comparison between one parametric model (intelligent driver model (IDM)), two new machine-learning CF models based on feedforward neural network (FNN) and recurrent neural network (RNN), and one novel deep-learning CF model (Deep-RNN) with long short-term memory (LSTM). 
 The models are developed in TensorFlow and compared at local (single-step) and global (multi-step) levels.
 
-The below figure shows performance of the CF models in multi-step predictions is 
+The below figure shows the performance of the CF models in multi-step predictions. The result shows that the Deep Learning model and IDM have the best performance in multi-step predictions (i.e, 100 steps predictions).
+The Deep Learning CF model shows a higher variation in performance than the IDM model, which has constant performance in predicting CF behavior.
+
+![alt text](https://github.com/sadvaseb/Machine-Learning-and-Deep-Learning-for-Car-Following/blob/master/fan%20chart%202.png "Pic 1")
+
 
 
 The Federal Highway Administration (FHWA) gathered the Next Generation Simulation dataset (NGSIM) for Interstate 80 freeway (I-80) in Emeryville, California. NGSIM trajectory data has been collected by FHWA in 2005 by a set of synchronized cameras on the freeway. The original dataset is available from [here](https://ops.fhwa.dot.gov/trafficanalysistools/ngsim.htm).
