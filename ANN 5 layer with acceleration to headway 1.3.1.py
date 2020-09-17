@@ -147,16 +147,7 @@ def plottest(_predictions_series, batchYT):
     plt.draw()
     plt.pause(0.0001)
 
-
-
-lost_train = []
-lost_test = []
-lost_validate = []
-lost_test_line = []    
-
-# Run the ANN n times and create n models
-for item in range(num_run):
-
+def ANN_model():
     # Configure ANN network
     tf.reset_default_graph()   #this resets the graphs
 
@@ -375,6 +366,17 @@ for item in range(num_run):
         lost_test.append(loss_listT)
     plt.ioff()
     plt.show()
+    return()
+
+lost_train = []
+lost_test = []
+lost_validate = []
+lost_test_line = []    
+
+# Run the ANN n times and create n models
+for item in range(num_run):
+
+    ANN_model()
     
     
 lost_train = np.array(lost_train)
