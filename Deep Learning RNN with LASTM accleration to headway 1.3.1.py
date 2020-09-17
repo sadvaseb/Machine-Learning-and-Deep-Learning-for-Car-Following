@@ -21,7 +21,8 @@ seed2 = [9284, 7802, 3369,  692, 2221, 6496, 2389, 6004, 3076, 3214, 9699,
          75, 5590, 4562, 8011,  387, 3999, 9402, 4887]
 tic = time.clock()
 
-num_run = 5    # number of run 
+"""Define parameters"""
+num_run = 1    # number of run 
 truncated_backprop_length = 118    #number of previous values in the time series  
 state_size = 40 # number of cells in the hidden layer 
 num_classes = 1   # number of outputs
@@ -33,7 +34,6 @@ validation_sample_size = 0.1 #percentage validation data
 sample__stop_training = .1 # percentage of whole data which is selected from training dataset to compare with validation perfromance
 num_batches = int((1-test_sample_size-validation_sample_size)*231752/(truncated_backprop_length*batch_size))-1
 keep_rate = 0.9 #keeping rate in drop-out algorithm
-
 inputs = input_size   #number of inputs
 learning_rate = 0.001 #Optimizer's learning rate
 stop_training_error_time = 1 #this parameter shows after how many not improving trainings the training will stop 
@@ -41,7 +41,7 @@ stop_training_error_time = 1 #this parameter shows after how many not improving 
 def generateData():
     """ Generate Training, testing, and validation data """
     input1 = []
-    with open('C:/Users/Saeed/Dropbox/Saeed Vasebi/2019/2019.04.30- IDM calibration/IDM_calibration_all_lane_data1.csv', 'r') as csv_f:        
+    with open('IDM_calibration_all_lane_data1.csv', 'r') as csv_f:        
         data = csv.reader (csv_f) 
         for row in data:
             input1.append (row [0:6+num_classes])
@@ -141,16 +141,8 @@ def plottest(_predictions_series, batchYT):
 
     plt.draw()
     plt.pause(0.0001)
-
-"Rest data gathering lists"""
-lost_train = []
-lost_test = []
-lost_validate = []
-lost_test_line = []
-
-"""Run the model"""
-for item in range(num_run):
-    print("Run Number", item+1)
+    
+def deep_learning_model():
     tf.reset_default_graph()  # rest all graphs
     
     batchX_placeholder = tf.placeholder(tf.float32, [batch_size, truncated_backprop_length, input_size])
@@ -176,7 +168,6 @@ for item in range(num_run):
     for _ in range(num_layers):
         stacked_rnn.append(tf.nn.rnn_cell.LSTMCell(state_size, state_is_tuple=True))
         cell = tf.nn.rnn_cell.MultiRNNCell(stacked_rnn, state_is_tuple=True)
-        #cell = tf.nn.rnn_cell.DropoutWrapper(cell, output_keep_prob=0.95)
     states_series, current_state = tf.nn.dynamic_rnn(cell, batchX_placeholder, initial_state=rnn_tuple_state)
     states_series = tf.reshape(states_series, [-1, state_size])
     # generate predition
@@ -187,36 +178,29 @@ for item in range(num_run):
     acel = tf.transpose(tf.nn.embedding_lookup(tf.transpose(batchX_placeholder),[2])) # extract accleration rate
     acel_min = tf.nn.embedding_lookup(tf.transpose(col_min_holder),[2])
     acel_max = tf.nn.embedding_lookup(tf.transpose(col_max_holder),[2])
-    acel1 = tf.reshape(tf.add(tf.multiply(acel, tf.subtract(acel_max,acel_min)), acel_min), [batch_size, truncated_backprop_length, -1]) # denormalize accleration
-    #acel1 = tf.add(tf.multiply(acel, tf.subtract(acel_max,acel_min)), acel_min)   
+    acel1 = tf.reshape(tf.add(tf.multiply(acel, tf.subtract(acel_max,acel_min)), acel_min), [batch_size, truncated_backprop_length, -1]) # denormalize accleration  
     
     location = tf.transpose(tf.nn.embedding_lookup(tf.transpose(batchX_placeholder),[0])) # extract subject vehicle's location
     loc_min = tf.nn.embedding_lookup(tf.transpose(col_min_holder),[0])
     loc_max = tf.nn.embedding_lookup(tf.transpose(col_max_holder),[0])
     location1 = tf.reshape(tf.add(tf.multiply(location, tf.subtract(loc_max,loc_min)), loc_min), [batch_size, truncated_backprop_length, -1]) # denormalize subject vehicle's location
-    #location1 = tf.add(tf.multiply(location, tf.subtract(loc_max,loc_min)), loc_min) # denormalize subject vehicle's location
-    
+
     velo = tf.transpose(tf.nn.embedding_lookup(tf.transpose(batchX_placeholder),[1])) # extract subject vehicle's velocity
     velo_min = tf.nn.embedding_lookup(tf.transpose(col_min_holder),[1])
     velo_max = tf.nn.embedding_lookup(tf.transpose(col_max_holder),[1])
     velo1 = tf.reshape(tf.add(tf.multiply(velo, tf.subtract(velo_max,velo_min)), velo_min), [batch_size, truncated_backprop_length, -1]) # denormalize subject vehicle's velocity
-    #velo1 = tf.add(tf.multiply(velo, tf.subtract(velo_max,velo_min)), velo_min)# denormalize subject vehicle's velocity
     
     leadH = tf.transpose(tf.nn.embedding_lookup(tf.transpose(batchX_placeholder),[5])) # extract leading vehicle's location at next time step with headway
     leadH_min = tf.nn.embedding_lookup(tf.transpose(col_min_holder),[5])
     leadH_max = tf.nn.embedding_lookup(tf.transpose(col_max_holder),[5])
     leadH1 = tf.reshape(tf.add(tf.multiply(leadH, tf.subtract(leadH_max,leadH_min)), leadH_min), [batch_size, truncated_backprop_length, -1]) # denormalize leading vehicle's location at next time step with headway
-    #leadH1 = tf.add(tf.multiply(leadH, tf.subtract(leadH_max,leadH_min)), leadH_min)
     
     target = tf.reshape (batchY_placeholder, [batch_size, truncated_backprop_length, -1]) # extract leading vehicle's headway at next time step 
     target_min = tf.nn.embedding_lookup(tf.transpose(col_min_holder),[6])
     target_max = tf.nn.embedding_lookup(tf.transpose(col_max_holder),[6])
-    #target1 = tf.reshape(tf.add(tf.multiply(target, tf.subtract(target_max,target_min)), target_min), [-1, batch_size, outputs]) # denormalize leading vehicle's headway at next time step 
     target1 = tf.add(tf.multiply(target, tf.subtract(target_max,target_min)), target_min)
     
-    #predict_accl = tf.reshape(tf.add(tf.multiply(outputRNN, tf.subtract(acel_max,acel_min)), acel_min), [-1, batch_size, outputs]) # denormalize predicted accleration at next time step 
     predict_accl = tf.add(tf.multiply(predictions_series, tf.subtract(acel_max,acel_min)), acel_min)
-    #predict_head = tf.reshape(tf.subtract (leadH1, tf.add(location1, tf.add(tf.multiply(velo1,time_step),tf.multiply(predict_accl,tf.multiply(time_step, time_step))))) , [-1, batch_size, outputs]) # H1 = lead_Y1 - (Subject_Y0 + V0*t + a1*t^2)
     predict_head = tf.subtract (leadH1, tf.add(location1, tf.add(tf.multiply(velo1,time_step),tf.multiply(predict_accl,tf.multiply(time_step, time_step)))))
     
     predict_head_N = tf.divide (tf.subtract( predict_head,target_min), tf.subtract( target_max,target_min))
@@ -240,7 +224,6 @@ for item in range(num_run):
         stop_training = 0
         pervious_validation = 1
         previous_sum_loss_10 = 1
-        x,y, xv, yv, xt, yt, col_min, col_max = generateData()
     
         while stop_training < stop_training_error_time:
             loss_list = []
@@ -311,13 +294,11 @@ for item in range(num_run):
                     
                     print('Validation average %headway error is %', "%.7f" % (validation_loss*100) )
                     
-                    """Is the model overfitted?"""
                     # Check if the model trained well enough
                     if (validation_loss1 < 0.001):
                         # First stop condition
                         if ((pervious_validation - validation_loss1)< 0.000001):
                             stop_training = stop_training + 1
-                            print ('1. Reason for stop is validation does not improve')
                     pervious_validation = validation_loss1
 
         lost_train.append(loss_list)
@@ -363,20 +344,22 @@ for item in range(num_run):
         lost_test.append(loss_listT)
     plt.ioff()
     plt.show()
+    return(test_headway, lost_train, lost_validate, lost_test)
     
-lost_train = np.array(lost_train)
-lost_validate = np.array(lost_validate)
-lost_test = np.array(lost_test)
-lost_test_line = lost_test.reshape((-1,1))
-test_headway = np.array(test_headway)
-test_headway = test_headway.reshape((-1))
-test_headway = test_headway * (col_max[0,0,6]-col_min[0,0,6]) + col_min[0,0,6]
-test_Location = (xt[0,:,5]* (col_max[0,0,5]-col_min[0,0,5]) + col_min[0,0,5]) - test_headway
-test_velocity = (test_Location - (xt[0,:,0]* (col_max[0,0,0]-col_min[0,0,0]) + col_min[0,0,0]))/.1  # V1 = (X1 - X0)/t
-test_acceleration = (test_velocity - (xt[0,:,1]* (col_max[0,0,1]-col_min[0,0,1]) + col_min[0,0,1]))/.1  # a1 = (V1 - V0)/t
+def prepare_results
+
+
+"Rest data gathering lists"""
+lost_train = []
+lost_test = []
+lost_validate = []
+
+"""Run the model"""
+for item in range(num_run):
+    print("Run Number", item+1)
+    x,y, xv, yv, xt, yt, col_min, col_max = generateData()
+    test_headway, lost_train, lost_validate, lost_test = deep_learning_model()
+    
+prepare_results 
 print("All runs testing average %headway error %", "%.7f" % (np.mean(lost_test)*100))
 print("run time", "%.0f" %  (time.clock() - tic)) 
-
-plot_prediction = _predictions_series*(col_max[:,:,input_size]-col_min[:,:,input_size])+ col_min[:,:,input_size]
-plot_actual = batchYT*(col_max[:,:,input_size]-col_min[:,:,input_size])+ col_min[:,:,input_size]
-plot_prediction = plot_prediction.reshape(-1,1)
