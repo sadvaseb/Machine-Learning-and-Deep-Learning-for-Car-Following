@@ -241,7 +241,6 @@ def ANN_model():
         sess.run(tf.global_variables_initializer())    #initialize all the random variables
         stop_training = 0
         pervious_validation = 1
-        x,y, xv, yv, xt, yt, col_min, col_max = generateData()
     
         while stop_training < stop_training_error_time:
 
@@ -366,34 +365,30 @@ def ANN_model():
         lost_test.append(loss_listT)
     plt.ioff()
     plt.show()
+    return(lost_train, lost_test)
+    
+def preparing_report():
+    lost_test = np.array(lost_test)
+    lost_test_line = lost_test.reshape((-1,1))
+    test_headway = np.array(test_headway)
+    test_headway = test_headway.reshape((-1,))
+    test_headway = test_headway * (col_max[0,0,6]-col_min[0,0,6]) + col_min[0,0,6]
+    test_Location = (xt[0,:,5]* (col_max[0,0,5]-col_min[0,0,5]) + col_min[0,0,5]) - test_headway
+    test_velocity = (test_Location - (xt[0,:,0]* (col_max[0,0,0]-col_min[0,0,0]) + col_min[0,0,0]))/.1
+    test_acceleration = (test_velocity - (xt[0,:,1]* (col_max[0,0,1]-col_min[0,0,1]) + col_min[0,0,1]))/.1
     return()
 
 lost_train = []
 lost_test = []
-lost_validate = []
-lost_test_line = []    
+lost_validate = []  
 
 # Run the ANN n times and create n models
 for item in range(num_run):
+    x,y, xv, yv, xt, yt, col_min, col_max = generateData()
+    lost_train, lost_test, lost_validate = ANN_model()
+    
+lost_test_line = preparing_report
 
-    ANN_model()
-    
-    
-lost_train = np.array(lost_train)
-lost_validate = np.array(lost_validate)
-lost_test = np.array(lost_test)
-lost_test_line = lost_test.reshape((-1,1))
-test_headway = np.array(test_headway)
-test_headway = test_headway.reshape((-1,))
-test_headway = test_headway * (col_max[0,0,6]-col_min[0,0,6]) + col_min[0,0,6]
-test_Location = (xt[0,:,5]* (col_max[0,0,5]-col_min[0,0,5]) + col_min[0,0,5]) - test_headway
-test_velocity = (test_Location - (xt[0,:,0]* (col_max[0,0,0]-col_min[0,0,0]) + col_min[0,0,0]))/.1
-test_acceleration = (test_velocity - (xt[0,:,1]* (col_max[0,0,1]-col_min[0,0,1]) + col_min[0,0,1]))/.1
 
 print("All runs testing average %headway error", "%.7f" % (np.mean(lost_test)*100))
 print("run time", "%.0f" %  (time.clock() - tic)) 
-    
-"""Denormalize final test results"""
-plot_prediction = _predictions_series*(col_max[:,:,input_size]-col_min[:,:,input_size])+ col_min[:,:,input_size]
-plot_actual = batchYT1*(col_max[:,:,input_size]-col_min[:,:,input_size])+ col_min[:,:,input_size]
-plot_prediction = plot_prediction.reshape(-1,1)
