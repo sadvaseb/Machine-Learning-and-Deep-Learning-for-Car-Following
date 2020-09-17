@@ -174,12 +174,10 @@ def deep_learning_model():
     logits = tf.matmul(states_series, W2) + b2
     predictions_series = tf.sigmoid(logits)  
     
-    
-    acel = tf.transpose(tf.nn.embedding_lookup(tf.transpose(batchX_placeholder),[2])) # extract accleration rate
+    # Translate acceleration to headway
     acel_min = tf.nn.embedding_lookup(tf.transpose(col_min_holder),[2])
     acel_max = tf.nn.embedding_lookup(tf.transpose(col_max_holder),[2])
-    acel1 = tf.reshape(tf.add(tf.multiply(acel, tf.subtract(acel_max,acel_min)), acel_min), [batch_size, truncated_backprop_length, -1]) # denormalize accleration  
-    
+
     location = tf.transpose(tf.nn.embedding_lookup(tf.transpose(batchX_placeholder),[0])) # extract subject vehicle's location
     loc_min = tf.nn.embedding_lookup(tf.transpose(col_min_holder),[0])
     loc_max = tf.nn.embedding_lookup(tf.transpose(col_max_holder),[0])
@@ -195,11 +193,9 @@ def deep_learning_model():
     leadH_max = tf.nn.embedding_lookup(tf.transpose(col_max_holder),[5])
     leadH1 = tf.reshape(tf.add(tf.multiply(leadH, tf.subtract(leadH_max,leadH_min)), leadH_min), [batch_size, truncated_backprop_length, -1]) # denormalize leading vehicle's location at next time step with headway
     
-    target = tf.reshape (batchY_placeholder, [batch_size, truncated_backprop_length, -1]) # extract leading vehicle's headway at next time step 
     target_min = tf.nn.embedding_lookup(tf.transpose(col_min_holder),[6])
     target_max = tf.nn.embedding_lookup(tf.transpose(col_max_holder),[6])
-    target1 = tf.add(tf.multiply(target, tf.subtract(target_max,target_min)), target_min)
-    
+
     predict_accl = tf.add(tf.multiply(predictions_series, tf.subtract(acel_max,acel_min)), acel_min)
     predict_head = tf.subtract (leadH1, tf.add(location1, tf.add(tf.multiply(velo1,time_step),tf.multiply(predict_accl,tf.multiply(time_step, time_step)))))
     
@@ -223,13 +219,11 @@ def deep_learning_model():
         ave_loss = 1
         stop_training = 0
         pervious_validation = 1
-        previous_sum_loss_10 = 1
     
         while stop_training < stop_training_error_time:
             loss_list = []
             _current_state = np.zeros((num_layers, 2, batch_size, state_size))
             sum_loss= 0
-            sum_loss_10 = 0
             for batch_idx in range(num_batches):
                 start_idx = batch_idx * truncated_backprop_length
                 end_idx = start_idx + truncated_backprop_length
@@ -346,7 +340,16 @@ def deep_learning_model():
     plt.show()
     return(test_headway, lost_train, lost_validate, lost_test)
     
-def prepare_results
+def prepare_results(test_headway, lost_test):
+    lost_test = np.array(lost_test)
+    lost_test_line = lost_test.reshape((-1,1))
+    test_headway = np.array(test_headway)
+    test_headway = test_headway.reshape((-1))
+    test_headway = test_headway * (col_max[0,0,6]-col_min[0,0,6]) + col_min[0,0,6]
+    test_Location = (xt[0,:,5]* (col_max[0,0,5]-col_min[0,0,5]) + col_min[0,0,5]) - test_headway
+    test_velocity = (test_Location - (xt[0,:,0]* (col_max[0,0,0]-col_min[0,0,0]) + col_min[0,0,0]))/.1  # V1 = (X1 - X0)/t
+    test_acceleration = (test_velocity - (xt[0,:,1]* (col_max[0,0,1]-col_min[0,0,1]) + col_min[0,0,1]))/.1  # a1 = (V1 - V0)/t
+    return(lost_test_line, test_Location, test_velocity, test_acceleration)
 
 
 "Rest data gathering lists"""
@@ -360,6 +363,6 @@ for item in range(num_run):
     x,y, xv, yv, xt, yt, col_min, col_max = generateData()
     test_headway, lost_train, lost_validate, lost_test = deep_learning_model()
     
-prepare_results 
+lost_test_line, test_Location, test_velocity, test_acceleration = prepare_results (test_headway, lost_test)
 print("All runs testing average %headway error %", "%.7f" % (np.mean(lost_test)*100))
 print("run time", "%.0f" %  (time.clock() - tic)) 
