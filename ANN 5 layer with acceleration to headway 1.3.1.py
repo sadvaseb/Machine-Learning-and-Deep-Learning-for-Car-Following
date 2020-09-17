@@ -29,7 +29,7 @@ n_nodes_hl4 = 80
 n_nodes_hl5 = 40
 
 
-num_run = 5                # number of run   
+num_run = 1                # number of run   
 state_size = n_nodes_hl1   # number of cells in the hidden layer 
 outputs = 1                # number of outputs
 num_classes = outputs      # number of outputs
@@ -365,9 +365,9 @@ def ANN_model():
         lost_test.append(loss_listT)
     plt.ioff()
     plt.show()
-    return(lost_train, lost_test)
+    return(lost_train, lost_test, lost_validate, test_headway)
     
-def preparing_report():
+def preparing_report(lost_test, test_headway):
     lost_test = np.array(lost_test)
     lost_test_line = lost_test.reshape((-1,1))
     test_headway = np.array(test_headway)
@@ -376,7 +376,7 @@ def preparing_report():
     test_Location = (xt[0,:,5]* (col_max[0,0,5]-col_min[0,0,5]) + col_min[0,0,5]) - test_headway
     test_velocity = (test_Location - (xt[0,:,0]* (col_max[0,0,0]-col_min[0,0,0]) + col_min[0,0,0]))/.1
     test_acceleration = (test_velocity - (xt[0,:,1]* (col_max[0,0,1]-col_min[0,0,1]) + col_min[0,0,1]))/.1
-    return()
+    return(lost_test_line,test_Location, test_velocity, test_acceleration)
 
 lost_train = []
 lost_test = []
@@ -385,9 +385,9 @@ lost_validate = []
 # Run the ANN n times and create n models
 for item in range(num_run):
     x,y, xv, yv, xt, yt, col_min, col_max = generateData()
-    lost_train, lost_test, lost_validate = ANN_model()
+    lost_train, lost_test, lost_validate, test_headway = ANN_model()
     
-lost_test_line = preparing_report
+lost_test_line,test_Location, test_velocity, test_acceleration = preparing_report(lost_test, test_headway)
 
 
 print("All runs testing average %headway error", "%.7f" % (np.mean(lost_test)*100))
